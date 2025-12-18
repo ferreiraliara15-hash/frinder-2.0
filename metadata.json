@@ -1,0 +1,8 @@
+{
+  "name": "FRINDER",
+  "description": "Amizades começam com um swipe. A social platform to find friends with a swipe, including chat, meets, and AI support.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
