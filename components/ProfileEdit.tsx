@@ -51,7 +51,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onUpdate }) => {
             onClick={() => setIsPreviewOpen(true)}
             className="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg text-sm font-bold border border-zinc-700 hover:bg-zinc-700 transition-colors"
           >
-            Visualizar 👁️
+            Ver como os outros me veem 👁️
           </button>
           <button 
             onClick={() => onUpdate(profile)}
@@ -169,7 +169,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onUpdate }) => {
           <div className="w-full max-w-sm flex flex-col items-center">
             <div className="mb-4 text-center">
               <span className="bg-pink-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Modo Visualização</span>
-              <p className="text-zinc-400 text-[10px] mt-2 italic">É assim que seu perfil aparece para os outros!</p>
+              <p className="text-zinc-400 text-[10px] mt-2 italic">É assim que seu perfil público aparece para os outros usuários!</p>
             </div>
             
             <div className="w-full rounded-2xl shadow-2xl overflow-hidden bg-zinc-900 border border-zinc-800 flex flex-col aspect-[3/4.5] pointer-events-none">
@@ -205,7 +205,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ currentUser, onUpdate }) => {
               onClick={() => setIsPreviewOpen(false)}
               className="mt-8 bg-zinc-100 text-zinc-900 font-black px-8 py-3 rounded-2xl shadow-xl active:scale-95 transition-transform"
             >
-              Fechar Visualização
+              Voltar ao Editor
             </button>
           </div>
         </div>

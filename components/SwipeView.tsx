@@ -19,7 +19,7 @@ const SwipeView: React.FC<SwipeViewProps> = ({ currentUser, onMatch }) => {
     const swipes = db.getSwipes().filter(s => s.fromId === currentUser.id);
     const swipedIds = swipes.map(s => s.toId);
     
-    // Filter available public profiles
+    // Filtra perfis públicos disponíveis (não eu mesmo, não swipados, e dentro do filtro)
     let filtered = users.filter(u => 
       u.id !== currentUser.id && 
       !swipedIds.includes(u.id) &&
@@ -27,11 +27,20 @@ const SwipeView: React.FC<SwipeViewProps> = ({ currentUser, onMatch }) => {
       u.age <= filters.ageMax
     );
 
-    // Simple Recommendation Algorithm: Score based on common interests
+    // Algoritmo de Recomendação: 
+    // 1. Interesses em comum (cada interesse igual ganha 10 pontos)
+    // 2. Proximidade de idade (diferença menor ganha pontos)
     filtered = filtered.sort((a, b) => {
       const commonA = a.interests.filter(i => currentUser.interests.includes(i)).length;
       const commonB = b.interests.filter(i => currentUser.interests.includes(i)).length;
-      return commonB - commonA; // Higher score first
+      
+      const ageDiffA = Math.abs(a.age - currentUser.age);
+      const ageDiffB = Math.abs(b.age - currentUser.age);
+
+      const scoreA = (commonA * 10) - ageDiffA;
+      const scoreB = (commonB * 10) - ageDiffB;
+
+      return scoreB - scoreA; // Maior score primeiro
     });
 
     setProfiles(filtered);
@@ -56,19 +65,30 @@ const SwipeView: React.FC<SwipeViewProps> = ({ currentUser, onMatch }) => {
     setCurrentIndex(prev => prev + 1);
   };
 
+  // Estado quando não há perfis criados no banco ou filtros muito restritos
   if (profiles.length === 0 && currentIndex === 0) {
+    const allUsers = db.getUsers();
+    const hasOnlyMe = allUsers.length <= 1;
+
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-6">
         <div className="text-8xl animate-pulse">✨</div>
-        <h2 className="text-2xl font-black text-zinc-100">Ainda não há contas criadas...</h2>
+        <h2 className="text-2xl font-black text-zinc-100">
+          {hasOnlyMe ? "Ainda não há contas criadas" : "Nenhum perfil encontrado"}
+        </h2>
         <p className="text-zinc-500 leading-relaxed">
-          Seja a primeira pessoa a brilhar aqui e chame suas amigas para o Frinder!
+          {hasOnlyMe 
+            ? "Seja a primeira e chame amigas para começar a diversão no Frinder!" 
+            : "Tente ajustar seus filtros para encontrar novos amigos por perto."}
         </p>
         <button 
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            setFilters({ ageMin: 18, ageMax: 99 });
+            window.location.reload();
+          }}
           className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-3 rounded-2xl font-black shadow-xl shadow-purple-500/20 active:scale-95 transition-transform"
         >
-          Recarregar Perfis
+          {hasOnlyMe ? "Convidar Amigas" : "Limpar Filtros"}
         </button>
       </div>
     );
@@ -79,15 +99,15 @@ const SwipeView: React.FC<SwipeViewProps> = ({ currentUser, onMatch }) => {
       <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-4">
         <div className="text-6xl animate-bounce">😴</div>
         <h2 className="text-xl font-bold text-zinc-100">Você viu todo mundo!</h2>
-        <p className="text-zinc-500">Tente expandir seus filtros de idade para encontrar mais amigos.</p>
+        <p className="text-zinc-500">Volte mais tarde para ver novas pessoas ou mude seus filtros.</p>
         <button 
           onClick={() => {
             setFilters({ ageMin: 18, ageMax: 99 });
             setCurrentIndex(0);
           }}
-          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2 rounded-full font-bold shadow-lg"
+          className="bg-zinc-800 text-zinc-300 px-6 py-2 rounded-xl font-bold border border-zinc-700"
         >
-          Limpar Filtros
+          Recomeçar
         </button>
       </div>
     );
@@ -98,7 +118,7 @@ const SwipeView: React.FC<SwipeViewProps> = ({ currentUser, onMatch }) => {
   return (
     <div className="relative h-[calc(100vh-120px)] w-full p-4 overflow-hidden flex flex-col">
       <div className="flex justify-between items-center mb-2 px-2">
-        <h2 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Descoberta Pública</h2>
+        <h2 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Feed Público</h2>
         <button 
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           className={`text-xs font-bold px-3 py-1 rounded-full border transition-colors ${isFilterOpen ? 'bg-pink-500 text-white border-pink-500' : 'bg-zinc-900 text-zinc-400 border-zinc-800'}`}
